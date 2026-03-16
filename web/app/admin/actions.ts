@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { prisma } from "../lib/prisma";
-import { ApplicationStatus } from "../generated/prisma";
+import { ApplicationStatus } from "../generated/prisma/enums";
 
 function requireAdmin() {
   // Login temporarily bypassed; no-op for now.
