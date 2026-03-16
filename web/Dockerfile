@@ -24,11 +24,8 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
 
-# Persist SQLite database outside the image
-VOLUME ["/data"]
-
 EXPOSE 3000
 
-# If DATABASE_URL is not provided, default to a file in the /data volume
-CMD ["sh", "-c", "DATABASE_URL=${DATABASE_URL:-file:/data/dev.db} npm run start"]
+# DATABASE_URL must be set to MySQL connection string (e.g. mysql://user:pass@host:3306/dbname)
+CMD ["sh", "-c", "prisma migrate deploy && next start"]
 

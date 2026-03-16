@@ -1,10 +1,10 @@
 import { PrismaClient, ApplicationStatus } from "../app/generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { MOCK_CLIENTS } from "../app/lib/mock-clients";
 
-const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL || "file:./dev.db",
-});
+const url = process.env.DATABASE_URL ?? "";
+const adapterUrl = url.startsWith("mysql://") ? url.replace(/^mysql:\/\//, "mariadb://") : url;
+const adapter = new PrismaMariaDb(adapterUrl);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {

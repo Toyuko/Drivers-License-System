@@ -1,9 +1,15 @@
 import { PrismaClient } from "../generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
-const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL || "file:./dev.db",
-});
+const url = process.env.DATABASE_URL;
+// Use a parseable placeholder when DATABASE_URL is missing (e.g. during build); runtime will require a real URL
+const effectiveUrl =
+  url && (url.startsWith("mysql://") || url.startsWith("mariadb://"))
+    ? url.startsWith("mysql://")
+      ? url.replace(/^mysql:\/\//, "mariadb://")
+      : url
+    : "mariadb://localhost:3306/placeholder";
+const adapter = new PrismaMariaDb(effectiveUrl);
 
 declare global {
   // eslint-disable-next-line no-var

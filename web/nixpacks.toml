@@ -1,0 +1,15 @@
+# Nixpacks config for Dokploy deployment (Next.js + MySQL)
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["npm ci"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "prisma migrate deploy && next start"
+
+[variables]
+NODE_ENV = "production"

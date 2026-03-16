@@ -1,9 +1,10 @@
-import { notFound, redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
 import { prisma } from "../lib/prisma";
 import { STATUS_STEPS } from "../lib/mock-clients";
 import { Edit } from "lucide-react";
 import { createClient, updateClientStatus } from "./actions";
+
+export const dynamic = "force-dynamic";
 
 async function requireAdminSession() {
   // Login temporarily bypassed; no-op for now.
