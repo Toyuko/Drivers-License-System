@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum ApplicationStatus {
+  APPLICATION_RECEIVED
+  DOCUMENT_VERIFICATION
+  PROCESSING_DLT
+  LICENSE_ISSUED
+  DISPATCHED_COMPLETED
+}
+
+model Client {
+  id               String            @id @default(cuid())
+  full_name        String
+  passport_number  String
+  application_id   String            @unique
+  current_status   ApplicationStatus @default(APPLICATION_RECEIVED)
+  notes            String?
+  updated_at       DateTime          @updatedAt
+  created_at       DateTime          @default(now())
+
+  @@index([passport_number])
+  @@index([application_id])
+}
+
