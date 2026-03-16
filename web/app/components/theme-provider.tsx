@@ -8,64 +8,83 @@ import React, {
   type ReactNode,
 } from "react";
 
-type Theme = "light" | "dark";
+export type ThemePreference = "light" | "dark" | "auto";
+export type ResolvedTheme = "light" | "dark";
 
 type ThemeContextValue = {
-  theme: Theme;
-  toggleTheme: () => void;
+  preference: ThemePreference;
+  resolved: ResolvedTheme;
+  setPreference: (preference: ThemePreference) => void;
+  cycleTheme: () => void;
 };
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-function getSystemPreference(): Theme {
+function getSystemPreference(): ResolvedTheme {
   if (typeof window === "undefined") return "light";
   return window.matchMedia("(prefers-color-scheme: dark)").matches
     ? "dark"
     : "light";
 }
 
-function getInitialTheme(): Theme {
-  if (typeof window === "undefined") return "light";
+function getInitialPreference(): ThemePreference {
+  if (typeof window === "undefined") return "auto";
 
   try {
     const stored = window.localStorage.getItem("theme");
-    if (stored === "light" || stored === "dark") {
+    if (stored === "light" || stored === "dark" || stored === "auto") {
       return stored;
     }
   } catch {
     // ignore
   }
 
-  return getSystemPreference();
+  return "auto";
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [preference, setPreferenceState] = useState<ThemePreference>("auto");
+  const [systemPref, setSystemPref] = useState<ResolvedTheme>("light");
 
   useEffect(() => {
-    setTheme(getInitialTheme());
+    setPreferenceState(getInitialPreference());
+    setSystemPref(getSystemPreference());
+
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = () => setSystemPref(getSystemPreference());
+    mq.addEventListener("change", handleChange);
+    return () => mq.removeEventListener("change", handleChange);
   }, []);
+
+  const resolved: ResolvedTheme =
+    preference === "auto" ? systemPref : preference;
 
   useEffect(() => {
     if (typeof document === "undefined") return;
     const root = document.documentElement;
 
     root.classList.remove("theme-light", "theme-dark");
-    root.classList.add(theme === "dark" ? "theme-dark" : "theme-light");
+    root.classList.add(resolved === "dark" ? "theme-dark" : "theme-light");
 
     try {
-      window.localStorage.setItem("theme", theme);
+      window.localStorage.setItem("theme", preference);
     } catch {
       // ignore
     }
-  }, [theme]);
+  }, [preference, resolved]);
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  const setPreference = (p: ThemePreference) => setPreferenceState(p);
+
+  const cycleTheme = () => {
+    setPreferenceState((prev) =>
+      prev === "light" ? "dark" : prev === "dark" ? "auto" : "light"
+    );
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider
+      value={{ preference, resolved, setPreference, cycleTheme }}
+    >
       {children}
     </ThemeContext.Provider>
   );
