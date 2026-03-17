@@ -1,17 +1,25 @@
 "use client";
 
+import { useRef } from "react";
 import { Trash2 } from "lucide-react";
 import { deleteClient } from "./actions";
 
 type Props = { clientId: string; clientName: string };
 
 export function DeleteClientButton({ clientId, clientName }: Props) {
+  const confirmedRef = useRef(false);
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const ok = window.confirm(
-      `ลบผู้ยื่นคำขอ "${clientName}" ออกจากระบบใช่หรือไม่?\n\nDelete applicant "${clientName}"? This cannot be undone.`
-    );
-    if (ok) e.currentTarget.requestSubmit();
+    if (!confirmedRef.current) {
+      e.preventDefault();
+      const ok = window.confirm(
+        `ลบผู้ยื่นคำขอ "${clientName}" ออกจากระบบใช่หรือไม่?\n\nDelete applicant "${clientName}"? This cannot be undone.`
+      );
+      if (ok) {
+        confirmedRef.current = true;
+        e.currentTarget.requestSubmit();
+      }
+    }
   }
 
   return (
