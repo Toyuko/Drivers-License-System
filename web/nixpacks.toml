@@ -1,6 +1,7 @@
 # Nixpacks config for Dokploy deployment (Next.js + MySQL)
 [phases.setup]
-nixPkgs = ["nodejs_20"]
+# Prisma 7.5+ requires Node 20.19+, 22.12+, or 24+; nodejs_20 in Nix gives 20.18.x
+nixPkgs = ["nodejs_22"]
 
 [phases.install]
 cmds = ["npm ci"]
