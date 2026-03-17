@@ -1,10 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { MOCK_CLIENTS } from "@/app/lib/mock-clients";
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  // In production, require ?key=SEED_SECRET so only you can trigger seed
   if (process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "Not available in production" }, { status: 403 });
+    const secret = process.env.SEED_SECRET;
+    const key = request.nextUrl.searchParams.get("key");
+    if (!secret || key !== secret) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
   }
   try {
     for (const client of MOCK_CLIENTS) {
