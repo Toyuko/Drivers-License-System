@@ -10,7 +10,7 @@ cmds = ["npm ci"]
 cmds = ["npm run build"]
 
 [start]
-cmd = "prisma migrate deploy && next start"
+cmd = "prisma migrate deploy && npx prisma db seed && next start"
 
 [variables]
 NODE_ENV = "production"
