@@ -60,4 +60,18 @@ export async function createClient(formData: FormData) {
   revalidatePath("/track");
 }
 
+export async function deleteClient(formData: FormData) {
+  requireAdmin();
+
+  const clientId = String(formData.get("clientId") ?? "");
+  if (!clientId) return;
+
+  await prisma.client.delete({
+    where: { id: clientId },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/track");
+}
+
 
